@@ -119,8 +119,6 @@ class SuperTicTacToe:
                 self.screen.blit(bar, self.green_bar_pos_coords[element])  # place in the green bar
 
     def small_sqr_win_recognition(self, big_sqr, team_dictionary, team_name, team_image, team_list):
-        print(team_name)
-        print(team_dictionary)
         square_won = False
         # for the big square we just played in, check if the coords line up
         for i in range(3):  # for each row and column
@@ -200,11 +198,9 @@ class SuperTicTacToe:
 
             if mouse_click_detect[0]:  # when someone right clicks
                 mouse_pos = pygame.mouse.get_pos()  # get the position of the mouse
-                print(mouse_pos)
                 rounded_coords = self.round_down_50(
                     mouse_pos)  # round it down to lowest 50, so that x/o lines up nicely
                 time.sleep(0.1)  # insert small break to stop it registering the same click multiple times
-                print(rounded_coords)
 
                 clicked_big_square = self.current_big_square_calc(mouse_pos)
 
