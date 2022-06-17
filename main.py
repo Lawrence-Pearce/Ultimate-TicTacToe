@@ -149,7 +149,7 @@ class SuperTicTacToe:
         victory = False
         for i in range(3):  # check if any rows or columns won
             num = 3 * i
-            if False not in (list_of_sqrs[0 + i], list_of_sqrs[1 + i], list_of_sqrs[2 + i]):  # check if column won
+            if False not in (list_of_sqrs[0 + i], list_of_sqrs[3 + i], list_of_sqrs[6 + i]):  # check if column won
                 line_start_stop_positions = {0: [(75, 75), (75, 475)],  # where to draw the connecting line
                                              1: [(275, 75), (275, 475)],
                                              2: [(475, 75), (475, 475)]}
