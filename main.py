@@ -64,8 +64,8 @@ class SuperTicTacToe:
         self.nought = pygame.image.load(r"Assets\o.png")
         self.big_nought = pygame.image.load(r"Assets\big_o.png")
         self.grey_sqr = pygame.image.load(r"Assets\grey_45x45_sqr.png")
-        self.sqr_in_play_bar = pygame.image.load(r"Assets\green_bar.png")
-        self.remove_sqr_in_play_bar = pygame.image.load(r"Assets\white_bar.png")
+        self.sqr_in_play_bar = pygame.image.load(r"Assets\green_bar.png")   # green bar that shows what squares in play
+        self.remove_sqr_in_play_bar = pygame.image.load(r"Assets\white_bar.png")  # white bar
 
         pygame.init()
         self.screen = pygame.display.set_mode((550, 550))
@@ -103,6 +103,7 @@ class SuperTicTacToe:
             self.cross_positions[current_big_sqr][coord_list_pos] = coords  # add in where the cross went
             # replace the available coord with None so that the player can't just go there again
             self.available_positions[current_big_sqr][coord_list_pos] = None
+
             return "Naught"  # switch the team over
 
         elif team == "Naught":  # same as for cross, but with the naught's variables
@@ -137,7 +138,6 @@ class SuperTicTacToe:
         if square_won:
             print(f"{team_name} won square {big_sqr + 1}!")
             self.available_positions[big_sqr] = [None]
-            print(f"for big_sqr{big_sqr}: {self.big_sqrs_not_won.index(big_sqr)}")
             self.big_sqrs_not_won[self.big_sqrs_not_won.index(big_sqr)] = None
             self.screen.blit(team_image, self.big_sqr_corner_coords[big_sqr])
 
@@ -216,24 +216,27 @@ class SuperTicTacToe:
                                                    self.available_big_squares)  # remove all the green bars
                         team_turn = self.place_move(team_turn, rounded_coords,
                                                     clicked_big_square)  # place the x or o, and switch over the team
+                        # set the caption so players know who's turn it is.
+                        pygame.display.set_caption(f"{team_turn}'s turn")
 
+                        # check if a win has happened
                         if self.small_sqr_win_recognition(clicked_big_square, self.naught_positions, "Naughts",
                                                           self.big_nought,
                                                           self.naught_sqrs_won):
                             game_over = True
                         if self.small_sqr_win_recognition(clicked_big_square, self.cross_positions, "Cross", self.big_cross,
-                                                          self.cross_sqrs_won):  # check if a win has happened
+                                                          self.cross_sqrs_won):
                             game_over = True
                         big_sqr_in_play = int(
                             coord_position)  # find out in which position the square we just played was, and
 
                         if big_sqr_in_play not in self.big_sqrs_not_won:
-                            available_big_squares = self.big_sqrs_not_won
+                            self.available_big_squares = self.big_sqrs_not_won
                         else:
-                            available_big_squares = [big_sqr_in_play]
+                            self.available_big_squares = [big_sqr_in_play]
 
                         self.place_sqr_in_play_bar(self.sqr_in_play_bar,
-                                                   available_big_squares)  # show user where they can go
+                                                   self.available_big_squares)  # show user where they can go
                     else:
                         continue
                 else:
@@ -246,8 +249,7 @@ class SuperTicTacToe:
 while True:
     game = SuperTicTacToe()
     game.game_run("Cross")
-    if input("Game Over! Would you like to play again? (y/n)") == "y":
+    if input("Game Over! Play again? (y/n)").lower() == "y":  # TODO: create buttons in game to do this
         continue
     else:
         break
-
