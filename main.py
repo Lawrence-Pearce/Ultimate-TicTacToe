@@ -66,6 +66,7 @@ class SuperTicTacToe:
         self.grey_sqr = pygame.image.load(r"Assets\grey_45x45_sqr.png")
         self.sqr_in_play_bar = pygame.image.load(r"Assets\green_bar.png")   # green bar that shows what squares in play
         self.remove_sqr_in_play_bar = pygame.image.load(r"Assets\white_bar.png")  # white bar
+        self.game_over_screen = pygame.image.load(r"Assets\gameover.png")
 
         pygame.init()
         self.screen = pygame.display.set_mode((550, 550))
@@ -73,9 +74,9 @@ class SuperTicTacToe:
         pygame.display.set_caption("Super Tic-Tac-Toe")
 
     @staticmethod
-    def round_down_50(mouse_position):  # rounds the coordinates of the click down to the nearest 50.
-        x = (math.floor(mouse_position[0] / 50)) * 50
-        y = (math.floor(mouse_position[1] / 50)) * 50
+    def round_down_coords(mouse_position, number_to_round_to):  # rounds the coordinates of the click down to the nearest x.
+        x = (math.floor(mouse_position[0] / number_to_round_to)) * number_to_round_to
+        y = (math.floor(mouse_position[1] / number_to_round_to)) * number_to_round_to
 
         return x, y
 
@@ -136,7 +137,7 @@ class SuperTicTacToe:
             square_won = True
 
         if square_won:
-            print(f"{team_name} won square {big_sqr + 1}!")
+            # print(f"{team_name} won square {big_sqr + 1}!")
             self.available_positions[big_sqr] = [None]
             self.big_sqrs_not_won[self.big_sqrs_not_won.index(big_sqr)] = None
             self.screen.blit(team_image, self.big_sqr_corner_coords[big_sqr])
@@ -198,8 +199,8 @@ class SuperTicTacToe:
 
             if mouse_click_detect[0]:  # when someone right clicks
                 mouse_pos = pygame.mouse.get_pos()  # get the position of the mouse
-                rounded_coords = self.round_down_50(
-                    mouse_pos)  # round it down to lowest 50, so that x/o lines up nicely
+                rounded_coords = self.round_down_coords(
+                    mouse_pos, 50)  # round it down to lowest 50, so that x/o lines up nicely
                 time.sleep(0.1)  # insert small break to stop it registering the same click multiple times
 
                 clicked_big_square = self.current_big_square_calc(mouse_pos)
@@ -245,11 +246,34 @@ class SuperTicTacToe:
             pygame.display.flip()
             pygame.display.update()
 
+    def play_again_loop(self):
+        self.screen.blit(self.game_over_screen, (0, 0))
+        pygame.display.flip()
+        pygame.display.update()
+
+        # place rectangles in the same positions as the buttons in the image, without drawing them.
+        play_again_rect = pygame.Rect(0, 230, 230, 110)
+        exit_game_rect = pygame.Rect(315, 230, 235, 110)
+
+        while True:
+            # event check
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    quit()
+            mouse_click_detect = pygame.mouse.get_pressed(num_buttons=3)
+
+            if mouse_click_detect[0]:
+                mouse_pos = pygame.mouse.get_pos()  # get the position of the mouse
+
+                if play_again_rect.collidepoint(mouse_pos) == 1:
+                    return
+
+                elif exit_game_rect.collidepoint(mouse_pos) == 1:
+                    quit()
+                time.sleep(0.1)  # prevent double-clicking
+
 
 while True:
     game = SuperTicTacToe()
     game.game_run("Cross")
-    if input("Game Over! Play again? (y/n)").lower() == "y":  # TODO: create buttons in game to do this
-        continue
-    else:
-        break
+    game.play_again_loop()
