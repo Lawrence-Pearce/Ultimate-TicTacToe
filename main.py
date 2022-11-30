@@ -1,11 +1,12 @@
 import pygame
 import math
 import time
+import copy
 
 
 class SuperTicTacToe:
     def __init__(self):
-        self.available_positions = {
+        self.all_positions = {
             0: [(0, 0), (50, 0), (100, 0), (0, 50), (50, 50), (100, 50), (0, 100), (50, 100), (100, 100)
                 ],
             1: [(200, 0), (250, 0), (300, 0), (200, 50), (250, 50), (300, 50), (200, 100), (250, 100),
@@ -25,6 +26,9 @@ class SuperTicTacToe:
             8: [(400, 400), (450, 400), (500, 400), (400, 450), (450, 450), (500, 450), (400, 500),
                 (450, 500), (500, 500)]
         }
+
+        self.available_positions = copy.deepcopy(self.all_positions)
+
         self.cross_positions = {0: [None, None, None, None, None, None, None, None, None],
                                 1: [None, None, None, None, None, None, None, None, None],
                                 2: [None, None, None, None, None, None, None, None, None],
@@ -34,7 +38,7 @@ class SuperTicTacToe:
                                 6: [None, None, None, None, None, None, None, None, None],
                                 7: [None, None, None, None, None, None, None, None, None],
                                 8: [None, None, None, None, None, None, None, None, None]}
-        self.naught_positions = {0: [None, None, None, None, None, None, None, None, None],
+        self.nought_positions = {0: [None, None, None, None, None, None, None, None, None],
                                  1: [None, None, None, None, None, None, None, None, None],
                                  2: [None, None, None, None, None, None, None, None, None],
                                  3: [None, None, None, None, None, None, None, None, None],
@@ -45,7 +49,7 @@ class SuperTicTacToe:
                                  8: [None, None, None, None, None, None, None, None, None]}
 
         self.cross_sqrs_won = [False, False, False, False, False, False, False, False, False]
-        self.naught_sqrs_won = [False, False, False, False, False, False, False, False, False]
+        self.nought_sqrs_won = [False, False, False, False, False, False, False, False, False]
 
         self.big_sqr_corner_coords = [(0, 0), (200, 0), (400, 0), (0, 200), (200, 200),
                                       # coordinates of the big square corners
@@ -53,28 +57,33 @@ class SuperTicTacToe:
         self.green_bar_pos_coords = [(0, 150), (200, 150), (400, 150), (0, 185), (200, 185),
                                      # the coords where the green bar will
                                      (400, 185), (0, 385), (200, 385), (400, 385)]  # go
+
+        self.green_bar_pos_coords = [(0, 0), (200, 0), (400, 0), (0, 200), (200, 200),
+                                     # coordinates of the big square corners
+                                     (400, 200), (0, 400), (200, 400), (400, 400)]
         self.big_sqrs_not_won = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
         self.available_big_squares = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
-        # load all the images that we will need, and assign them to variables
-        self.icon = pygame.image.load(r"Assets\tic-tac-toe.png")
-        self.cross = pygame.image.load(r"Assets\x.png")
+        # load all the images that we will need
+        self.icon = pygame.image.load(r"Assets\tic-tac-toe.png")    # icon for the game window
+        self.cross = pygame.image.load(r"Assets\x.png")  # crosses and noughts
         self.big_cross = pygame.image.load(r"Assets\big_x.png")
         self.nought = pygame.image.load(r"Assets\o.png")
         self.big_nought = pygame.image.load(r"Assets\big_o.png")
         self.grey_sqr = pygame.image.load(r"Assets\grey_45x45_sqr.png")
-        self.sqr_in_play_bar = pygame.image.load(r"Assets\green_bar.png")   # green bar that shows what squares in play
-        self.remove_sqr_in_play_bar = pygame.image.load(r"Assets\white_bar.png")  # white bar
+        self.sqr_in_play_bar = pygame.image.load(r"Assets\green_highlight.png")  # shows what squares in play
         self.game_over_screen = pygame.image.load(r"Assets\gameover.png")
 
+        # set up the window
         pygame.init()
         self.screen = pygame.display.set_mode((550, 550))
         pygame.display.set_icon(self.icon)  # make the window look nice
         pygame.display.set_caption("Super Tic-Tac-Toe")
 
     @staticmethod
-    def round_down_coords(mouse_position, number_to_round_to):  # rounds the coordinates of the click down to the nearest x.
+    def round_down_coords(mouse_position,
+                          number_to_round_to):  # rounds the coordinates of the click down to the nearest x.
         x = (math.floor(mouse_position[0] / number_to_round_to)) * number_to_round_to
         y = (math.floor(mouse_position[1] / number_to_round_to)) * number_to_round_to
 
@@ -98,24 +107,22 @@ class SuperTicTacToe:
 
     def place_move(self, team, coords, current_big_sqr):  # this function does the stuff required for a move
         if team == "Cross":
-            self.screen.blit(self.cross, coords)  # place a cross on the screen
 
             coord_list_pos = self.available_positions[current_big_sqr].index(coords)
             self.cross_positions[current_big_sqr][coord_list_pos] = coords  # add in where the cross went
             # replace the available coord with None so that the player can't just go there again
             self.available_positions[current_big_sqr][coord_list_pos] = None
 
-            return "Naught"  # switch the team over
+            return "nought"  # switch the team over
 
-        elif team == "Naught":  # same as for cross, but with the naught's variables
-            self.screen.blit(self.nought, coords)
+        elif team == "nought":  # same as for cross, but with the nought's variables
             coord_list_pos = self.available_positions[current_big_sqr].index(coords)
-            self.naught_positions[current_big_sqr][coord_list_pos] = coords
+            self.nought_positions[current_big_sqr][coord_list_pos] = coords
 
             self.available_positions[current_big_sqr][coord_list_pos] = None
             return "Cross"
 
-    def place_sqr_in_play_bar(self, bar, sqrs_in_play):
+    def highlight_sqrs_in_play(self, bar, sqrs_in_play):
         for element in sqrs_in_play:
             if element is not None:
                 self.screen.blit(bar, self.green_bar_pos_coords[element])  # place in the green bar
@@ -140,15 +147,14 @@ class SuperTicTacToe:
             # print(f"{team_name} won square {big_sqr + 1}!")
             self.available_positions[big_sqr] = [None]
             self.big_sqrs_not_won[self.big_sqrs_not_won.index(big_sqr)] = None
-            self.screen.blit(team_image, self.big_sqr_corner_coords[big_sqr])
-
-            team_list[big_sqr] = True
+            team_list[big_sqr] = self.big_sqr_corner_coords[big_sqr]
 
             return self.big_sqr_win_recognition(team_list)
 
         # check if the square is filled. the len is to ensure that the square we are checking is not already won
         # the team_name == Cross is because the win rec is run multiple times.
-        elif team_name == "Cross" and len(self.available_positions[big_sqr]) > 1 and all(i is None for i in self.available_positions[big_sqr]):
+        elif team_name == "Cross" and len(self.available_positions[big_sqr]) > 1 and all(
+                i is None for i in self.available_positions[big_sqr]):
             self.available_positions[big_sqr] = [None]
             self.big_sqrs_not_won[self.big_sqrs_not_won.index(big_sqr)] = None
 
@@ -188,19 +194,46 @@ class SuperTicTacToe:
                              width=30)
         return victory
 
-    def setup(self):
+    def draw_board(self):
         self.screen.fill((255, 255, 255,))  # set a white background
 
-        for key in self.available_positions.keys():  # draw in all the grey squares
-            for coord in self.available_positions[key]:
+        # draw in all grey squares
+        for key in self.all_positions.keys():
+            for coord in self.all_positions[key]:
                 self.screen.blit(self.grey_sqr, coord)
 
-        self.place_sqr_in_play_bar(self.sqr_in_play_bar, self.available_big_squares)  # place in the green bars
+        # draw in all small crosses
+        for key in self.cross_positions.keys():
+            for coord in self.cross_positions[key]:
+                if coord is not None:
+                    self.screen.blit(self.cross, coord)
+
+        # draw in all noughts
+        for key in self.nought_positions.keys():
+            for coord in self.nought_positions[key]:
+                if coord is not None:
+                    self.screen.blit(self.nought, coord)
+
+        # draw in big crosses and big naughts
+        for element in self.cross_sqrs_won:
+
+            if element:
+                self.screen.blit(self.big_cross, element)
+
+        for element in self.nought_sqrs_won:
+            if element:
+                self.screen.blit(self.big_nought, element)
+
+        # highlight all the available big squares
+        for element in self.available_big_squares:
+            if element is not None:
+                self.screen.blit(self.sqr_in_play_bar, self.green_bar_pos_coords[element])  # place in the green bar
 
     def game_run(self, team_turn):
-        self.setup()
+        self.draw_board()
         game_over = False
         while not game_over:
+
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -209,7 +242,8 @@ class SuperTicTacToe:
 
             if mouse_click_detect[0]:  # when someone right clicks
                 mouse_pos = pygame.mouse.get_pos()  # get the position of the mouse
-                rounded_coords = self.round_down_coords(mouse_pos, 50)  # round it down to lowest 50, so that x/o lines up nicely
+                rounded_coords = self.round_down_coords(mouse_pos,
+                                                        50)  # round it down to lowest 50, so that x/o lines up nicely
                 time.sleep(0.2)  # insert small break to stop it registering the same click multiple times
                 clicked_big_square = self.current_big_square_calc(mouse_pos)
 
@@ -221,8 +255,6 @@ class SuperTicTacToe:
                         coord_position = small_available_positions.index(
                             rounded_coords)  # where in the big square is it (0-8)
 
-                        self.place_sqr_in_play_bar(self.remove_sqr_in_play_bar,
-                                                   self.available_big_squares)  # remove all the green bars
                         team_turn = self.place_move(team_turn, rounded_coords,
                                                     clicked_big_square)  # place the x or o, and switch over the team
                         # set the caption so players know who's turn it is.
@@ -231,29 +263,32 @@ class SuperTicTacToe:
                         # check if a win has happened
 
                         if self.small_sqr_win_recognition(clicked_big_square,
-                                                                                     self.naught_positions, "Naughts",
-                                                                                     self.big_nought,
-                                                                                     self.naught_sqrs_won):
+                                                          self.nought_positions, "noughts",
+                                                          self.big_nought,
+                                                          self.nought_sqrs_won):
                             game_over = True
                         if self.small_sqr_win_recognition(clicked_big_square,
-                                                                                       self.cross_positions, "Cross",
-                                                                                       self.big_cross,
-                                                                                       self.cross_sqrs_won):
+                                                          self.cross_positions, "Cross",
+                                                          self.big_cross,
+                                                          self.cross_sqrs_won):
                             game_over = True
 
-                        big_sqr_in_play = int(coord_position)  # find out in which position the square we just played was, and
+                        big_sqr_in_play = int(
+                            coord_position)  # find out in which position the square we just played was, and
 
                         if big_sqr_in_play not in self.big_sqrs_not_won:
                             self.available_big_squares = self.big_sqrs_not_won
                         else:
                             self.available_big_squares = [big_sqr_in_play]
 
-                        self.place_sqr_in_play_bar(self.sqr_in_play_bar,
-                                                   self.available_big_squares)  # show user where they can go
+                        self.highlight_sqrs_in_play(self.sqr_in_play_bar,
+                                                    self.available_big_squares)  # show user where they can go
                     else:
                         continue
                 else:
                     continue
+                if not game_over:
+                    self.draw_board()
 
             pygame.display.flip()
             pygame.display.update()
