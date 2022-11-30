@@ -153,8 +153,6 @@ class SuperTicTacToe:
             self.big_sqrs_not_won[self.big_sqrs_not_won.index(big_sqr)] = None
 
     def big_sqr_win_recognition(self, list_of_sqrs):
-        print("Running win rec")
-        print(self.big_sqrs_not_won)
         victory = False
         for i in range(3):  # check if any rows or columns won
             num = 3 * i
