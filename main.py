@@ -188,13 +188,15 @@ class SuperTicTacToe:
             line_start_stop = [(0, 0), (0, 0)]
             victory = True
 
-        if victory:  # draw on the line if someone has won
-            pygame.draw.line(surface=self.screen, color=(236, 28, 36), start_pos=line_start_stop[0],
+        if victory:  # draw board and then line
+            pygame.display.set_caption("Game Over!")
+            self.draw_board(do_highlight=False)
+            pygame.draw.line(surface=self.screen, color=(14, 209, 69), start_pos=line_start_stop[0],
                              end_pos=line_start_stop[1],
                              width=30)
         return victory
 
-    def draw_board(self):
+    def draw_board(self, do_highlight=True):
         self.screen.fill((255, 255, 255,))  # set a white background
 
         # draw in all grey squares
@@ -225,11 +227,13 @@ class SuperTicTacToe:
                 self.screen.blit(self.big_nought, element)
 
         # highlight all the available big squares
-        for element in self.available_big_squares:
-            if element is not None:
-                self.screen.blit(self.sqr_in_play_bar, self.green_bar_pos_coords[element])  # place in the green bar
+        if do_highlight:
+            for element in self.available_big_squares:
+                if element is not None:
+                    self.screen.blit(self.sqr_in_play_bar, self.green_bar_pos_coords[element])
 
     def game_run(self, team_turn):
+        time.sleep(0.3) # prevent the click from play_again_loop carrying over
         self.draw_board()
         game_over = False
         while not game_over:
@@ -299,8 +303,7 @@ class SuperTicTacToe:
         pygame.display.update()
 
         # place rectangles in the same positions as the buttons in the image, without drawing them.
-        play_again_rect = pygame.Rect(0, 230, 230, 110)
-        exit_game_rect = pygame.Rect(315, 230, 235, 110)
+        play_again_rect = pygame.Rect(200, 200, 150, 150)
 
         while True:
             # event check
@@ -314,10 +317,7 @@ class SuperTicTacToe:
 
                 if play_again_rect.collidepoint(mouse_pos) == 1:
                     return
-
-                elif exit_game_rect.collidepoint(mouse_pos) == 1:
-                    quit()
-                time.sleep(0.1)  # prevent double-clicking
+                time.sleep(0.2)  # prevent double-clicking
 
 
 while True:
