@@ -146,7 +146,15 @@ class SuperTicTacToe:
 
             return self.big_sqr_win_recognition(team_list)
 
+        # check if the square is filled. the len is to ensure that the square we are checking is not already won
+        # the team_name == Cross is because the win rec is run multiple times.
+        elif team_name == "Cross" and len(self.available_positions[big_sqr]) > 1 and all(i is None for i in self.available_positions[big_sqr]):
+            self.available_positions[big_sqr] = [None]
+            self.big_sqrs_not_won[self.big_sqrs_not_won.index(big_sqr)] = None
+
     def big_sqr_win_recognition(self, list_of_sqrs):
+        print("Running win rec")
+        print(self.big_sqrs_not_won)
         victory = False
         for i in range(3):  # check if any rows or columns won
             num = 3 * i
@@ -170,6 +178,10 @@ class SuperTicTacToe:
 
         if False not in (list_of_sqrs[2], list_of_sqrs[4], list_of_sqrs[6]):  # check diagonal bottom left to top right
             line_start_stop = [(475, 75), (75, 475)]
+            victory = True
+
+        if all(i is None for i in self.big_sqrs_not_won):
+            line_start_stop = [(0, 0), (0, 0)]
             victory = True
 
         if victory:  # draw on the line if someone has won
@@ -199,10 +211,8 @@ class SuperTicTacToe:
 
             if mouse_click_detect[0]:  # when someone right clicks
                 mouse_pos = pygame.mouse.get_pos()  # get the position of the mouse
-                rounded_coords = self.round_down_coords(
-                    mouse_pos, 50)  # round it down to lowest 50, so that x/o lines up nicely
-                time.sleep(0.1)  # insert small break to stop it registering the same click multiple times
-
+                rounded_coords = self.round_down_coords(mouse_pos, 50)  # round it down to lowest 50, so that x/o lines up nicely
+                time.sleep(0.2)  # insert small break to stop it registering the same click multiple times
                 clicked_big_square = self.current_big_square_calc(mouse_pos)
 
                 if clicked_big_square in self.available_big_squares:
@@ -221,15 +231,19 @@ class SuperTicTacToe:
                         pygame.display.set_caption(f"{team_turn}'s turn")
 
                         # check if a win has happened
-                        if self.small_sqr_win_recognition(clicked_big_square, self.naught_positions, "Naughts",
-                                                          self.big_nought,
-                                                          self.naught_sqrs_won):
+
+                        if self.small_sqr_win_recognition(clicked_big_square,
+                                                                                     self.naught_positions, "Naughts",
+                                                                                     self.big_nought,
+                                                                                     self.naught_sqrs_won):
                             game_over = True
-                        if self.small_sqr_win_recognition(clicked_big_square, self.cross_positions, "Cross", self.big_cross,
-                                                          self.cross_sqrs_won):
+                        if self.small_sqr_win_recognition(clicked_big_square,
+                                                                                       self.cross_positions, "Cross",
+                                                                                       self.big_cross,
+                                                                                       self.cross_sqrs_won):
                             game_over = True
-                        big_sqr_in_play = int(
-                            coord_position)  # find out in which position the square we just played was, and
+
+                        big_sqr_in_play = int(coord_position)  # find out in which position the square we just played was, and
 
                         if big_sqr_in_play not in self.big_sqrs_not_won:
                             self.available_big_squares = self.big_sqrs_not_won
